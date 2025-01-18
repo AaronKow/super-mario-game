@@ -1,4 +1,4 @@
 # Phaser Vite Template
 
-- Phaser version  : `^4.0.0-beta.3`
+- Phaser version  : `^3.87.0`
 - Vite version    : `^6.0.7`
