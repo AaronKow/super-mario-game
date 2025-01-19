@@ -9,6 +9,7 @@ export default class HudControl {
 		add,
 		score,
 		playerBlocked,
+		tweens,
 	}) {
 		this.scoreText = scoreText;
 		this.highScoreText = highScoreText;
@@ -19,6 +20,7 @@ export default class HudControl {
 		this.add = add;
 		this.score = score;
 		this.playerBlocked = playerBlocked;
+		this.tweens = tweens;
 	}
 
 	createHUD() {
@@ -91,7 +93,7 @@ export default class HudControl {
 	}
 
 	addToScore(num, originObject) {
-		for (i = 1; i <= num; i++) {
+		for (let i = 1; i <= num; i++) {
 			setTimeout(() => {
 				this.score++;
 				this.updateScore();

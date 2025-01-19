@@ -155,11 +155,6 @@ export class MainMenu extends Scene {
 	}
 
 	createPlatform(screenWidth, screenHeight, platformHeight) {
-		console.log('>> platform', {
-			screenHeight,
-			screenWidth: screenWidth / 2,
-			platformHeight,
-		});
 		let platform = this.add
 			.tileSprite(0, screenHeight, screenWidth / 2, platformHeight, 'start-floorbricks')
 			.setScale(2)

@@ -96,7 +96,6 @@ export const gameStates = {
 
 	// Create empty holes array, every hole will have their object with the hole start and end
 	worldHolesCoords: [],
-	emptyBlocksList: [],
 	player: null,
 	playerState: 0,
 	playerInvulnerable: false,
@@ -127,4 +126,7 @@ export const gameStates = {
 	settingsMenuOpen: false,
 	musicGroup: null,
 	soundsEffectGroup: null,
+
+	// objects
+	blocksGroup: null,
 };

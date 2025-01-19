@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import Player from '@/src/classes/Player';
 import mapRegistry from '@/src/utils/mapRegistry';
 import HudControl from '@/src/classes/HudControl';
+import watchEvent from '@/src/utils/watchEvent';
 
 export class Game extends Scene {
 	constructor() {
@@ -26,10 +27,15 @@ export class Game extends Scene {
 			'playerState',
 			'musicGroup',
 			'soundsEffectGroup',
+			'velocityX',
 			'velocityY',
 			'furthestPlayerPos',
 			'reachedLevelEnd',
+			'levelGravity',
+			'playerFiring',
+			'blocksGroup',
 		];
+		this.emptyBlocksList = [];
 	}
 
 	create() {
@@ -37,6 +43,9 @@ export class Game extends Scene {
 
 		// map global registry
 		mapRegistry(this, this.importRegistry);
+
+		// watch events
+		this.watchEvents();
 
 		// start flag
 		this.levelStarted = true;
@@ -104,6 +113,10 @@ export class Game extends Scene {
 			this.reachedLevelEnd = true;
 			camera.stopFollow();
 		}
+	}
+
+	watchEvents() {
+		watchEvent(this, 'playerBlocked');
 	}
 
 	createPlayer() {
@@ -203,11 +216,6 @@ export class Game extends Scene {
 					lastWasStructure--;
 				}
 			} else {
-				// console.log(">> i", i, true, number);
-				// console.log(">> pieceStart", pieceStart);
-				// console.log(">> lastWasHole", lastWasHole);
-				// console.log(">> lastWasStructure", lastWasStructure);
-
 				// Save every hole start and end for later use
 				this.worldHolesCoords.push({ start: pieceStart, end: pieceStart + this.platformPiecesWidth * 2 });
 
@@ -443,8 +451,75 @@ export class Game extends Scene {
 		}
 	}
 
+	consumeMushroom(player, mushroom) {
+		if (this.gameOver || this.gameWinned) return;
+
+		this.registry.get('soundsEffectGroup').consumePowerUpSound.play();
+		this.hudInstance.addToScore(1000, mushroom);
+		mushroom.destroy();
+
+		if (this.playerState > 0) return;
+
+		this.events.emit('playerBlocked', true);
+		this.anims.pauseAll();
+		this.physics.pause();
+		this.player.setTint(0xfefefe).anims.play('grown-mario-idle');
+		let i = 0;
+		let interval = setInterval(() => {
+			i++;
+			this.player.anims.play(i % 2 === 0 ? 'grown-mario-idle' : 'idle');
+			if (i > 5) {
+				clearInterval(interval);
+				this.player.clearTint();
+			}
+		}, 100);
+
+		setTimeout(() => {
+			this.physics.resume();
+			this.anims.resumeAll();
+			this.events.emit('playerBlocked', false);
+			this.playerState = 1;
+			this.hudInstance.updateTimer();
+		}, 1000);
+	}
+
+	consumeFireflower(player, fireFlower) {
+		if (this.gameOver || this.gameWinned) return;
+
+		this.registry.get('soundsEffectGroup').consumePowerUpSound.play();
+		this.hudInstance.addToScore(1000, fireFlower);
+		fireFlower.destroy();
+
+		if (this.playerState > 1) return;
+
+		let anim = this.playerState > 0 ? 'grown-mario-idle' : 'idle';
+
+		this.events.emit('playerBlocked', true);
+		this.anims.pauseAll();
+		this.physics.pause();
+
+		this.player.setTint(0xfefefe).anims.play('fire-mario-idle');
+		let i = 0;
+		let interval = setInterval(() => {
+			i++;
+			this.player.anims.play(i % 2 === 0 ? 'fire-mario-idle' : anim);
+			if (i > 5) {
+				clearInterval(interval);
+				this.player.clearTint();
+			}
+		}, 100);
+
+		setTimeout(() => {
+			this.physics.resume();
+			this.anims.resumeAll();
+			this.events.emit('playerBlocked', false);
+			this.playerState = 2;
+			this.hudInstance.updateTimer();
+		}, 1000);
+	}
+
 	collectCoin(player, coin) {
-		this.coinSound.play();
+		this.registry.get('soundsEffectGroup').coinSound.play();
 		this.hudInstance.addToScore(200);
 		coin.destroy();
 	}
@@ -453,22 +528,23 @@ export class Game extends Scene {
 		if (!player.body.blocked.up) return;
 
 		const screenHeightRatio = this.screenHeight / 34.5;
-		this.blockBumpSound.play();
+		this.registry.get('soundsEffectGroup').blockBumpSound.play();
 
-		if (emptyBlocksList.includes(block)) return;
+		if (this.emptyBlocksList.includes(block)) return;
 
-		emptyBlocksList.push(block);
+		this.emptyBlocksList.push(block);
 		block.anims.stop();
 		block.setTexture('emptyBlock');
-		animateBlockBounce.call(this, block, screenHeightRatio);
+		this.animateBlockBounce(block, screenHeightRatio);
 
 		const random = Phaser.Math.Between(0, 100);
 		if (random < 90) {
-			handleCoin.call(this, block);
+			this.handleMushroom(block);
+			// this.handleCoin(block);
 		} else if (random < 96) {
-			handleMushroom.call(this, block);
+			this.handleMushroom(block);
 		} else {
-			handleFireFlower.call(this, block);
+			this.handleFireFlower(block);
 		}
 	}
 
@@ -490,7 +566,7 @@ export class Game extends Scene {
 
 	handleCoin(block) {
 		this.hudInstance.addToScore(200, block);
-		this.coinSound.play();
+		this.registry.get('soundsEffectGroup').coinSound.play();
 		const coin = this.physics.add
 			.sprite(block.getBounds().x, block.getBounds().y, 'coin')
 			.setScale(this.screenHeight / 357)
@@ -514,34 +590,35 @@ export class Game extends Scene {
 	}
 
 	handleMushroom(block) {
-		this.powerUpAppearsSound.play();
+		this.registry.get('soundsEffectGroup').powerUpAppearsSound.play();
 		const mushroom = this.physics.add
 			.sprite(block.getBounds().x, block.getBounds().y, 'super-mushroom')
-			.setScale(screenHeight / 345)
+			.setScale(this.screenHeight / 345)
 			.setOrigin(0)
 			.setBounce(1, 0);
 
-		animatePowerUp(mushroom, screenHeight / 20, () => {
+		this.animatePowerUp(mushroom, this.screenHeight / 20, () => {
 			if (!mushroom) return;
-			mushroom.setVelocityX(Phaser.Math.Between(0, 10) <= 4 ? mushroomsVelocityX : -mushroomsVelocityX);
+			mushroom.setVelocityX(Phaser.Math.Between(0, 10) <= 4 ? this.mushroomsVelocityX : -this.mushroomsVelocityX);
 		});
 
-		this.physics.add.overlap(this.player, mushroom, consumeMushroom, null, this);
-		addColliders.call(this, mushroom);
+		this.physics.add.overlap(this.player, mushroom, this.consumeMushroom, null, this);
+		this.addColliders(mushroom);
 	}
 
 	handleFireFlower(block) {
-		this.powerUpAppearsSound.play();
-		const fireFlower = (this.physics.add
+		this.registry.get('soundsEffectGroup').powerUpAppearsSound.play();
+		const fireFlower = this.physics.add
 			.sprite(block.getBounds().x, block.getBounds().y, 'fire-flower')
-			.setScale(screenHeight / 345)
-			.setOrigin(0).body.allowGravity = false);
+			.setScale(this.screenHeight / 345)
+			.setOrigin(0);
 
+		fireFlower.body.allowGravity = false;
 		fireFlower.body.immovable = true;
 		fireFlower.anims.play('fire-flower-default', true);
 
-		animatePowerUp(fireFlower, screenHeight / 23);
-		this.physics.add.overlap(this.player, fireFlower, consumeFireflower, null, this);
+		this.animatePowerUp(fireFlower, this.screenHeight / 23);
+		this.physics.add.overlap(this.player, fireFlower, this.consumeFireflower, null, this);
 		const misteryBlocks = this.misteryBlocksGroup.getChildren();
 		this.physics.add.collider(fireFlower, misteryBlocks);
 	}
@@ -570,15 +647,15 @@ export class Game extends Scene {
 	destroyBlock(player, block) {
 		if (!player.body.blocked.up) return;
 
-		this.blockBumpSound.play();
+		this.registry.get('soundsEffectGroup').blockBumpSound.play();
 		if (this.playerState === 0 && !block.isImmovable) {
-			animateBlockBounce.call(this, block, screenHeight / 69);
+			this.animateBlockBounce(block, this.screenHeight / 69);
 		}
 
 		if (this.playerState > 0 && !(this.controlKeys.DOWN.isDown || this.joyStick.down)) {
-			this.breakBlockSound.play();
+			this.registry.get('soundsEffectGroup').breakBlockSound.play();
 			this.hudInstance.addToScore(50);
-			drawDestroyedBlockParticles.call(this, block);
+			this.drawDestroyedBlockParticles(block);
 			block.destroy();
 		}
 	}
@@ -586,24 +663,36 @@ export class Game extends Scene {
 	drawDestroyedBlockParticles(block) {
 		const playerBounds = this.player.getBounds();
 		const blockBounds = block.getBounds();
-		const velocities = [
-			{ x: -(screenWidth / 25.6), y: -(screenHeight / 3.45) },
-			{ x: screenWidth / 25.6, y: -(screenHeight / 3.45) },
-			{ x: -(screenWidth / 25.6), y: -(screenHeight / 2.6) },
-			{ x: screenWidth / 25.6, y: -(screenHeight / 2.6) },
+
+		// Function for generating random velocity
+		const getRandomVelocity = (min, max) => Math.random() * (max - min) + min;
+
+		let particles = [];
+
+		// Define particle positions
+		const positions = [
+			{ x: playerBounds.left, y: blockBounds.y },
+			{ x: playerBounds.right, y: blockBounds.y },
+			{ x: playerBounds.left, y: blockBounds.y + block.height * 2.35 },
+			{ x: playerBounds.right, y: blockBounds.y + block.height * 2.35 },
 		];
 
-		let particles = velocities.map((vel, i) => {
-			let xCoord = i < 2 ? playerBounds[i % 2 === 0 ? 'left' : 'right'] : playerBounds.left;
-			let yCoord = i < 2 ? blockBounds.y : blockBounds.y + block.height * 2.35;
-			return this.physics.add
-				.sprite(xCoord, yCoord, 'brick-debris')
-				.anims.play('brick-debris-default', true)
-				.setVelocity(vel.x, vel.y)
-				.setScale(screenHeight / 517)
-				.setDepth(4);
-		});
+		// Assign random velocities to each particle
+		for (const { x, y } of positions) {
+			const velocityX = getRandomVelocity(-this.screenWidth / 20, this.screenWidth / 20);
+			const velocityY = getRandomVelocity(-this.screenHeight / 3, -this.screenHeight / 4);
 
+			const particle = this.physics.add
+				.sprite(x, y, 'brick-debris')
+				.anims.play('brick-debris-default', true)
+				.setVelocity(velocityX, velocityY)
+				.setScale(this.screenHeight / 517)
+				.setDepth(4);
+
+			particles.push(particle);
+		}
+
+		// Disable and destroy particles after a timeout
 		setTimeout(() => {
 			particles.forEach((particle) => particle.disableBody(true, true));
 		}, 3000);
@@ -617,9 +706,9 @@ export class Game extends Scene {
 		const screenWidth = this.screenWidth;
 		const screenHeight = this.screenHeight;
 
-		playerBlocked = true;
+		this.events.emit('playerBlocked', true);
 		mainCamera.stopFollow();
-		this.powerDownSound.play();
+		this.registry.get('soundsEffectGroup').powerDownSound.play();
 
 		this.tweens.add({
 			targets: player,
@@ -671,7 +760,7 @@ export class Game extends Scene {
 			mainCamera.pan(worldWidth - screenWidth / 2, 0, 0);
 			mainCamera.fadeIn(500, 0, 0, 0);
 
-			this.powerDownSound.play();
+			this.registry.get('soundsEffectGroup').powerDownSound.play();
 			this.finalTrigger.destroy();
 
 			this.tweens.add({
@@ -681,7 +770,7 @@ export class Game extends Scene {
 			});
 
 			setTimeout(() => {
-				playerBlocked = false;
+				this.events.emit('playerBlocked', false);
 			}, 500);
 		}, 1100);
 	}
