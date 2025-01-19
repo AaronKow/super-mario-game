@@ -23,7 +23,7 @@ export default class HudControl {
 		this.tweens = tweens;
 	}
 
-	createHUD() {
+	createHUD(context) {
 		let posY = this.screenWidth / 35;
 
 		this.scoreText = this.add.text(this.screenWidth / 40, posY, '', {
@@ -53,6 +53,9 @@ export default class HudControl {
 			},
 		);
 		this.timeLeftText.setScrollFactor(0).depth = 5;
+
+		// broadcast timeLeftText obj
+		context.events.emit('timeLeftText', this.timeLeftText);
 
 		let localHighScore = localStorage.getItem('high-score');
 		if (localHighScore !== null) {

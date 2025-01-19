@@ -3,7 +3,7 @@ export const screenHeight = window.innerHeight * 1.1;
 export const velocityY = screenHeight / 1.15;
 export const velocityX = screenWidth / 4.5;
 export const levelGravity = velocityY * 2;
-export const worldWidth = screenWidth * 11;
+export const worldWidth = screenWidth * 3;
 export const platformPieces = 100;
 
 //  Find out more information about the Game Config at:
@@ -126,6 +126,7 @@ export const gameStates = {
 	settingsMenuOpen: false,
 	musicGroup: null,
 	soundsEffectGroup: null,
+	timeLeftText: null,
 
 	// objects
 	blocksGroup: null,

@@ -3,6 +3,7 @@ import Player from '@/src/classes/Player';
 import mapRegistry from '@/src/utils/mapRegistry';
 import HudControl from '@/src/classes/HudControl';
 import watchEvent from '@/src/utils/watchEvent';
+import World from '@/src/classes/World';
 
 export class Game extends Scene {
 	constructor() {
@@ -34,6 +35,8 @@ export class Game extends Scene {
 			'levelGravity',
 			'playerFiring',
 			'blocksGroup',
+			'timeLeftText',
+			'flagRaised',
 		];
 		this.emptyBlocksList = [];
 	}
@@ -62,6 +65,10 @@ export class Game extends Scene {
 
 		// generate world
 		this.generateWorld();
+
+		// draw world
+		this.worldInstance = new World(this);
+		this.worldInstance.drawWorld.call(this);
 
 		// init Head-Up-Display
 		this.initHUD();
@@ -117,6 +124,7 @@ export class Game extends Scene {
 
 	watchEvents() {
 		watchEvent(this, 'playerBlocked');
+		watchEvent(this, 'timeLeftText');
 	}
 
 	createPlayer() {
@@ -323,7 +331,7 @@ export class Game extends Scene {
 
 	initHUD() {
 		this.hudInstance = new HudControl(this);
-		this.hudInstance.createHUD();
+		this.hudInstance.createHUD(this);
 		this.hudInstance.updateTimer();
 	}
 
@@ -539,8 +547,7 @@ export class Game extends Scene {
 
 		const random = Phaser.Math.Between(0, 100);
 		if (random < 90) {
-			this.handleMushroom(block);
-			// this.handleCoin(block);
+			this.handleCoin(block);
 		} else if (random < 96) {
 			this.handleMushroom(block);
 		} else {
@@ -729,7 +736,7 @@ export class Game extends Scene {
 			this.physics.world.setBounds(worldWidth - screenWidth, 0, worldWidth, screenHeight);
 
 			const tpTubeX = worldWidth - screenWidth / 1.089;
-			const tpTubeY = screenHeight - platformHeight;
+			const tpTubeY = screenHeight - this.platformHeight;
 			this.tpTube = this.add
 				.tileSprite(tpTubeX, tpTubeY, 32, 32, 'vertical-medium-tube')
 				.setScale(screenHeight / 345)
@@ -748,7 +755,7 @@ export class Game extends Scene {
 				.setDepth(-1);
 
 			this.add
-				.tileSprite(worldWidth - screenWidth, screenHeight, screenWidth, platformHeight, 'start-floorbricks')
+				.tileSprite(worldWidth - screenWidth, screenHeight, screenWidth, this.platformHeight, 'start-floorbricks')
 				.setScale(2)
 				.setOrigin(0, 0.5)
 				.setDepth(2);

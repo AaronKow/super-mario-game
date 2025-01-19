@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import Player from '@/src/classes/Player';
+import World from '@/src/classes/World';
 import mapRegistry from '@/src/utils/mapRegistry';
 import watchEvent from '@/src/utils/watchEvent';
 
@@ -73,13 +74,9 @@ export class MainMenu extends Scene {
 	}
 
 	drawStartScreen() {
-		const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
-		this.createSky(this.screenWidth, this.screenHeight);
-		const platform = this.createPlatform(this.screenWidth, this.screenHeight, this.platformHeight);
-		this.createClouds(this.screenWidth, this.screenHeight);
-		this.createScenery(this.screenWidth, this.screenHeight, this.platformHeight);
-		this.addInteractiveElements(screenCenterX, this.screenHeight, this.platformHeight, this.player);
-		this.physics.add.collider(this.player, platform);
+		// start world instance
+		this.worldInstance = new World(this);
+		this.worldInstance.drawStartScreen.call(this);
 
 		// start game logic
 		this.startScreenTrigger = this.add
@@ -148,132 +145,6 @@ export class MainMenu extends Scene {
 		this.player.destroy();
 		this.player = null;
 		this.registry.set('player', this.player);
-	}
-
-	createSky(screenWidth, screenHeight) {
-		this.add.rectangle(0, 0, screenWidth, screenHeight, 0x8585ff).setOrigin(0).depth = -1;
-	}
-
-	createPlatform(screenWidth, screenHeight, platformHeight) {
-		let platform = this.add
-			.tileSprite(0, screenHeight, screenWidth / 2, platformHeight, 'start-floorbricks')
-			.setScale(2)
-			.setOrigin(0, 0.5);
-		this.physics.add.existing(platform);
-		platform.body.immovable = true;
-		platform.body.allowGravity = false;
-		return platform;
-	}
-
-	createClouds(screenWidth, screenHeight) {
-		const cloudPositions = [
-			{ x: screenWidth / 50, y: screenHeight / 3 },
-			{ x: screenWidth / 1.25, y: screenHeight / 2 },
-			{ x: screenWidth / 1.05, y: screenHeight / 6.5 },
-			{ x: screenWidth / 3, y: screenHeight / 3.5 },
-			{ x: screenWidth / 2.65, y: screenHeight / 2.8 },
-		];
-		cloudPositions.forEach(({ x, y }) => {
-			this.add.image(x, y, 'cloud1').setScale(screenHeight / 1725);
-		});
-	}
-
-	createScenery(screenWidth, screenHeight, platformHeight) {
-		const propsY = screenHeight - platformHeight;
-
-		const sceneryItems = [
-			{ key: 'mountain2', x: screenWidth / 50, scale: screenHeight / 517 },
-			{ key: 'mountain1', x: screenWidth / 300, scale: screenHeight / 517 },
-			{ key: 'bush1', x: screenWidth / 4, scale: screenHeight / 609 },
-			{ key: 'bush2', x: screenWidth / 1.55, scale: screenHeight / 609 },
-			{ key: 'bush2', x: screenWidth / 1.5, scale: screenHeight / 609 },
-			{
-				key: 'fence',
-				x: screenWidth / 15,
-				scale: screenHeight / 863,
-				type: 'tileSprite',
-				width: 350,
-				height: 35,
-			},
-		];
-
-		sceneryItems.forEach((item) => {
-			if (item.type === 'tileSprite') {
-				this.add.tileSprite(item.x, propsY, item.width, item.height, item.key).setOrigin(0, 1).setScale(item.scale);
-			} else {
-				this.add.image(item.x, propsY, item.key).setOrigin(0, 1).setScale(item.scale);
-			}
-		});
-
-		this.add
-			.image(screenWidth / 25, screenHeight / 10, 'sign')
-			.setOrigin(0)
-			.setScale(screenHeight / 350);
-	}
-
-	addInteractiveElements(screenCenterX, screenHeight, platformHeight, player) {
-		this.customBlock = this.addCustomBlock(screenCenterX, screenHeight, platformHeight, player);
-		this.addGear(screenCenterX, screenHeight, platformHeight);
-		this.addSettingsBubble(screenCenterX, screenHeight, platformHeight);
-		this.addNPC(screenCenterX, screenHeight, platformHeight);
-	}
-
-	addCustomBlock(screenCenterX, screenHeight, platformHeight, player) {
-		let customBlock = this.add
-			.sprite(screenCenterX, screenHeight - platformHeight * 1.9, 'custom-block')
-			.setScale(screenHeight / 345);
-		customBlock.anims.play('custom-block-default');
-
-		this.physics.add.collider(
-			player,
-			customBlock,
-			function () {
-				if (player.body.blocked.up) this.showSettings();
-			},
-			null,
-			this,
-		);
-
-		this.physics.add.existing(customBlock);
-		customBlock.body.allowGravity = false;
-		customBlock.body.immovable = true;
-
-		return customBlock;
-	}
-
-	addGear(screenCenterX, screenHeight, platformHeight) {
-		this.add
-			.image(screenCenterX, screenHeight - platformHeight * 1.9, 'gear')
-			.setScale(screenHeight / 13000)
-			.setInteractive()
-			.on('pointerdown', () => this.showSettings());
-	}
-
-	addSettingsBubble(screenCenterX, screenHeight, platformHeight) {
-		this.add
-			.image(screenCenterX * 1.12, screenHeight - platformHeight * 1.5, 'settings-bubble')
-			.setScale(screenHeight / 620);
-	}
-
-	addNPC(screenCenterX, screenHeight, platformHeight) {
-		this.add
-			.sprite(screenCenterX * 1.07, screenHeight - platformHeight, 'npc')
-			.setOrigin(0.5, 1)
-			.setScale(screenHeight / 365)
-			.anims.play('npc-default', true);
-	}
-
-	showSettings() {
-		this.settingsMenuOpen = this.registry.get('settingsMenuOpen');
-		if (!this.settingsMenuOpen) {
-			this.registry.set('settingsMenuOpen', true);
-			this.player.anims.play('idle', true);
-			this.events.emit('playerBlocked', true);
-			this.player.setVelocityX(0);
-			this.musicGroup.musicTheme.pause();
-			this.soundsEffectGroup.pauseSound.play();
-			this.drawSettingsMenu();
-		}
 	}
 
 	hideSettings() {

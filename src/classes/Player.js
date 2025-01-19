@@ -102,7 +102,7 @@ export default class Player {
 			if (this.playerState == 1) this.player.anims.play('grown-mario-run', true).flipX = false;
 			if (this.playerState == 2) this.player.anims.play('fire-mario-run', true);
 
-			if (this.player.x >= worldWidth - worldWidth / 75) {
+			if (this.player.x >= this.worldWidth - this.worldWidth / 75) {
 				this.tweens.add({
 					targets: this.player,
 					duration: 75,
@@ -217,11 +217,7 @@ export default class Player {
 			}
 		}
 
-		if (
-			this.playerState == 2 &&
-			this.controlKeys.FIRE.isDown &&
-			!this.fireInCooldown
-		) {
+		if (this.playerState == 2 && this.controlKeys.FIRE.isDown && !this.fireInCooldown) {
 			this.playerInstance.throwFireball.call(this);
 			return;
 		}
