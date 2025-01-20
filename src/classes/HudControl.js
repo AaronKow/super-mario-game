@@ -1,5 +1,7 @@
 export default class HudControl {
 	constructor({
+		events,
+		cameras,
 		scoreText,
 		highScoreText,
 		timeLeftText,
@@ -11,6 +13,8 @@ export default class HudControl {
 		playerBlocked,
 		tweens,
 	}) {
+		this.events = events;
+		this.cameras = cameras;
 		this.scoreText = scoreText;
 		this.highScoreText = highScoreText;
 		this.timeLeftText = timeLeftText;
@@ -21,6 +25,14 @@ export default class HudControl {
 		this.score = score;
 		this.playerBlocked = playerBlocked;
 		this.tweens = tweens;
+
+		this.watchEvent();
+	}
+
+	watchEvent() {
+		this.events.on('gameWinned', () => {
+			this.winScreen();
+		});
 	}
 
 	createHUD(context) {
@@ -145,7 +157,7 @@ export default class HudControl {
 
 		const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
 		let gameOverScreen = this.add
-			.rectangle(0, this.screenHeight / 2, worldWidth, this.screenHeight, 0x000000)
+			.rectangle(0, this.screenHeight / 2, this.worldWidth, this.screenHeight, 0x000000)
 			.setScrollFactor(0);
 		gameOverScreen.alpha = 0;
 		gameOverScreen.depth = 4;
@@ -228,7 +240,7 @@ export default class HudControl {
 
 		const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
 		let winScreen = this.add
-			.rectangle(0, this.screenHeight / 2, worldWidth, this.screenHeight, 0x000000)
+			.rectangle(0, this.screenHeight / 2, this.worldWidth, this.screenHeight, 0x000000)
 			.setScrollFactor(0);
 		winScreen.alpha = 0;
 		winScreen.depth = 4;

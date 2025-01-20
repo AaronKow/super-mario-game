@@ -37,6 +37,7 @@ export class Game extends Scene {
 			'blocksGroup',
 			'timeLeftText',
 			'flagRaised',
+			'gameWinned',
 		];
 		this.emptyBlocksList = [];
 	}

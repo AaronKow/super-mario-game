@@ -110,9 +110,9 @@ export default class Player {
 				});
 			}
 			setTimeout(() => {
-				gameWinned = true;
+				this.gameWinned = true;
+				this.events.emit('gameWinned', true);
 				this.player.destroy();
-				winScreen.call(this);
 			}, 5000);
 			return;
 		}
