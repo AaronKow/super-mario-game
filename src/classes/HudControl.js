@@ -157,8 +157,15 @@ export default class HudControl {
 
 		const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
 		let gameOverScreen = this.add
-			.rectangle(0, this.screenHeight / 2, this.worldWidth, this.screenHeight, 0x000000)
+			.rectangle(
+				this.cameras.main.width / 2, // Center the rectangle horizontally
+				this.cameras.main.height / 2, // Center the rectangle vertically
+				this.cameras.main.width, // Width of the whole screen
+				this.cameras.main.height, // Height of the whole screen
+				0x000000, // Black color
+			)
 			.setScrollFactor(0);
+
 		gameOverScreen.alpha = 0;
 		gameOverScreen.depth = 4;
 		this.tweens.add({
@@ -240,7 +247,13 @@ export default class HudControl {
 
 		const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
 		let winScreen = this.add
-			.rectangle(0, this.screenHeight / 2, this.worldWidth, this.screenHeight, 0x000000)
+			.rectangle(
+				this.cameras.main.width / 2, // Center the rectangle horizontally
+				this.cameras.main.height / 2, // Center the rectangle vertically
+				this.cameras.main.width, // Width of the whole screen
+				this.cameras.main.height, // Height of the whole screen
+				0x000000, // Black color
+			)
 			.setScrollFactor(0);
 		winScreen.alpha = 0;
 		winScreen.depth = 4;
