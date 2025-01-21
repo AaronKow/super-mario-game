@@ -25,7 +25,6 @@ export class Preloader extends Scene {
 	}
 
 	create() {
-		console.log('>> load Preloader');
 		this.initSound();
 		this.createAnimations();
 	}

@@ -31,8 +31,6 @@ export class MainMenu extends Scene {
 	}
 
 	create() {
-		console.log('>> load MainMenu');
-
 		// map global registry
 		mapRegistry(this, this.importRegistry);
 

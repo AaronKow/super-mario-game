@@ -44,8 +44,6 @@ export class Game extends Scene {
 	}
 
 	create() {
-		console.log('>> Game');
-
 		// map global registry
 		mapRegistry(this, this.importRegistry);
 
