@@ -1,3 +1,5 @@
+import html2canvas from 'html2canvas';
+
 export default class HudControl {
 	constructor({
 		events,
@@ -191,7 +193,7 @@ export default class HudControl {
 			.bitmapText(screenCenterX, this.screenHeight / 1.7, 'carrier_command', '> SCREENSHOT', this.screenWidth / 50)
 			.setOrigin(0.5)
 			.setInteractive()
-			.on('pointerdown', () => getScreenshot()).depth = 5;
+			.on('pointerdown', () => this.getScreenshot()).depth = 5;
 	}
 
 	gameOverFunc() {
@@ -274,6 +276,16 @@ export default class HudControl {
 			.bitmapText(screenCenterX, this.screenHeight / 1.7, 'carrier_command', '> SCREENSHOT', this.screenWidth / 50)
 			.setOrigin(0.5)
 			.setInteractive()
-			.on('pointerdown', () => getScreenshot()).depth = 5;
+			.on('pointerdown', () => this.getScreenshot()).depth = 5;
+	}
+
+	getScreenshot() {
+		html2canvas(document.getElementById('app')).then((canvas) => {
+			// create a link to download the image
+			var link = document.createElement('a');
+			link.download = 'screenshot.png';
+			link.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+			link.click();
+		});
 	}
 }
