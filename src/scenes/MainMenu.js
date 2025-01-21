@@ -62,7 +62,7 @@ export class MainMenu extends Scene {
 		this.registry.events.on(
 			'changedata',
 			(parent, key, data) => {
-				console.log('>> key', key, data);
+				// console.log('>> key', key, data);
 			},
 			this,
 		);

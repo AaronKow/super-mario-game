@@ -89,13 +89,11 @@ export default class HudControl {
 		if (!this.timeLeftText || this.timeLeft <= 0 || this.timeLeftText.stopped || this.playerBlocked) return;
 
 		if (this.timeLeft == 100) {
-			this.musicTheme.stop();
-			this.undergroundMusicTheme.stop();
-			this.timeWarningSound.play();
+			this.registry.get('musicGroup').musicTheme.stop();
+			this.registry.get('musicGroup').undergroundMusicTheme.stop();
+			this.registry.get('soundsEffectGroup').timeWarningSound.play();
 			setTimeout(() => {
-				this.hurryMusicTheme.play();
-				//this.musicTheme.rate = 1.2;
-				//this.musicTheme.resume();
+				this.registry.get('musicGroup').hurryMusicTheme.play();
 			}, 2400);
 		}
 
@@ -198,8 +196,8 @@ export default class HudControl {
 
 	gameOverFunc() {
 		this.timeLeftText.stopped = true;
-		player.anims.play('hurt', true);
-		player.body.enable = false;
+		this.player.anims.play('hurt', true);
+		this.player.body.enable = false;
 		this.finalFlagMast.body.enable = false;
 		let goombas = this.goombasGroup.getChildren();
 		for (let i = 0; i < goombas.length; i++) {
@@ -218,19 +216,19 @@ export default class HudControl {
 		for (let i = 0; i < misteryBlocks.length; i++) {
 			misteryBlocks[i].body.enable = false;
 		}
-		player.body.setSize(16, 16).setOffset(0);
-		player.setVelocityX(0);
+		this.player.body.setSize(16, 16).setOffset(0);
+		this.player.setVelocityX(0);
 		setTimeout(() => {
-			player.body.enable = true;
-			player.setVelocityY(-velocityY * 1.1);
+			this.player.body.enable = true;
+			this.player.setVelocityY(-this.velocityY * 1.1);
 		}, 500);
-		this.musicTheme.stop();
-		this.undergroundMusicTheme.stop();
-		this.hurryMusicTheme.stop();
-		this.gameOverSong.play();
+		this.registry.get('musicGroup').musicTheme.stop();
+		this.registry.get('musicGroup').undergroundMusicTheme.stop();
+		this.registry.get('musicGroup').hurryMusicTheme.stop();
+		this.registry.get('musicGroup').gameOverSong.play();
 		setTimeout(() => {
-			player.depth = 0;
-			gameOverScreen.call(this, this.timeLeft <= 0);
+			this.player.depth = 0;
+			this.hudInstance.gameOverScreen.call(this, this.timeLeft <= 0);
 			this.physics.pause();
 		}, 3000);
 		return;

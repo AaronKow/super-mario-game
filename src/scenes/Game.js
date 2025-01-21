@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import Player from '@/src/classes/Player';
+import Goombas from '@/src/classes/Goombas';
 import mapRegistry from '@/src/utils/mapRegistry';
 import HudControl from '@/src/classes/HudControl';
 import watchEvent from '@/src/utils/watchEvent';
@@ -71,6 +72,10 @@ export class Game extends Scene {
 		this.worldInstance = new World(this);
 		this.worldInstance.drawWorld.call(this);
 
+		// create goombas
+		this.goombasInstance = new Goombas(this);
+		this.goombasInstance.create.call(this);
+
 		// init Head-Up-Display
 		this.initHUD();
 
@@ -98,20 +103,6 @@ export class Game extends Scene {
 			camera.isFollowing = true;
 		}
 
-		// if (
-		// 	playerVelocityX < 0 &&
-		// 	this.furthestPlayerPos < this.player.x &&
-		// 	this.levelStarted &&
-		// 	!this.reachedLevelEnd &&
-		// 	camera.isFollowing
-		// ) {
-		// 	this.furthestPlayerPos = this.player.x;
-		// 	this.physics.world.setBounds(camera.worldView.x, 0, this.worldWidth, this.screenHeight);
-		// 	camera.setBounds(camera.worldView.x, 0, this.worldWidth, this.screenHeight);
-		// 	camera.stopFollow();
-		// 	camera.isFollowing = false;
-		// }
-
 		if (
 			!this.reachedLevelEnd &&
 			!this.isLevelOverworld &&
@@ -124,8 +115,9 @@ export class Game extends Scene {
 	}
 
 	watchEvents() {
-		watchEvent(this, 'playerBlocked');
 		watchEvent(this, 'timeLeftText');
+		watchEvent(this, 'playerInvulnerable');
+		watchEvent(this, 'playerBlocked');
 	}
 
 	createPlayer() {
@@ -548,7 +540,8 @@ export class Game extends Scene {
 
 		const random = Phaser.Math.Between(0, 100);
 		if (random < 90) {
-			this.handleCoin(block);
+			this.handleFireFlower(block);
+			// this.handleCoin(block);
 		} else if (random < 96) {
 			this.handleMushroom(block);
 		} else {

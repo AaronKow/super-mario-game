@@ -4,6 +4,7 @@ export default class Player {
 	constructor({
 		registry,
 		physics,
+		hudInstance,
 		add,
 		input,
 		plugins,
@@ -28,6 +29,7 @@ export default class Player {
 		this.playerInstance = null;
 		this.registry = registry;
 		this.physics = physics;
+		this.hudInstance = hudInstance;
 		this.add = add;
 		this.input = input;
 		this.plugins = plugins;
@@ -124,7 +126,7 @@ export default class Player {
 		// Check if player has fallen
 		if (this.player.y > this.screenHeight - 10 || this.timeLeft <= 0) {
 			this.gameOver = true;
-			// gameOverFunc.call(this);
+			if (this.hudInstance) this.hudInstance.gameOverFunc.call(this);
 			return;
 		}
 
@@ -306,13 +308,13 @@ export default class Player {
 			null,
 			this,
 		);
-		// this.physics.add.overlap(
-		// 	fireball,
-		// 	this.goombasGroup.getChildren(),
-		// 	this.playerInstance.fireballCollides,
-		// 	null,
-		// 	this,
-		// );
+		this.physics.add.overlap(
+			fireball,
+			this.goombasGroup.getChildren(),
+			this.playerInstance.fireballCollides,
+			null,
+			this,
+		);
 		this.physics.add.collider(
 			fireball,
 			this.immovableBlocksGroup.getChildren(),
@@ -365,7 +367,7 @@ export default class Player {
 			});
 		}, 400);
 
-		this.addToScore(100, entitie);
+		this.hudInstance.addToScore(100, entitie);
 		setTimeout(() => {
 			entitie.destroy();
 		}, 1250);
@@ -463,5 +465,42 @@ export default class Player {
 			fireball.isVelocityPositive = true;
 			fireball.setVelocityX(-this.velocityX * 1.3);
 		}
+	}
+
+	decreasePlayerState() {
+		if (this.playerState <= 0) {
+			this.gameOver = true;
+			this.hudInstance.gameOverFunc.call(this);
+			return;
+		}
+
+		this.events.emit('playerBlocked', true);
+		this.physics.pause();
+		this.anims.pauseAll();
+		this.registry.get('soundsEffectGroup').powerDownSound.play();
+
+		let anim1 = this.playerState == 2 ? 'fire-mario-idle' : 'grown-mario-idle';
+		let anim2 = this.playerState == 2 ? 'grown-mario-idle' : 'idle';
+
+		this.playerInstance.applyPlayerInvulnerability(this, 3000);
+		this.player.anims.play(anim2);
+
+		let i = 0;
+		let interval = setInterval(() => {
+			i++;
+			this.player.anims.play(i % 2 === 0 ? anim2 : anim1);
+			if (i > 5) {
+				clearInterval(interval);
+			}
+		}, 100);
+
+		this.playerState--;
+
+		setTimeout(() => {
+			this.physics.resume();
+			this.anims.resumeAll();
+			this.events.emit('playerBlocked', false);
+			this.hudInstance.updateTimer();
+		}, 1000);
 	}
 }
