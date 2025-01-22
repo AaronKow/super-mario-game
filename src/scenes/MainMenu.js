@@ -476,6 +476,7 @@ export class MainMenu extends Scene {
 			},
 		];
 
+		let keydownHandler = null;
 		directionTexts.forEach(({ control, text, icon }) => {
 			text.setInteractive().setOrigin(0.5, 0.4).depth = 5;
 			icon.depth = 5;

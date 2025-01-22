@@ -83,9 +83,9 @@ export default class Player {
 		const keyNames = ['JUMP', 'DOWN', 'LEFT', 'RIGHT', 'FIRE', 'PAUSE'];
 		const defaultCodes = [
 			Phaser.Input.Keyboard.KeyCodes.SPACE,
-			Phaser.Input.Keyboard.KeyCodes.S,
-			Phaser.Input.Keyboard.KeyCodes.A,
-			Phaser.Input.Keyboard.KeyCodes.D,
+			Phaser.Input.Keyboard.KeyCodes.DOWN,
+			Phaser.Input.Keyboard.KeyCodes.LEFT,
+			Phaser.Input.Keyboard.KeyCodes.RIGHT,
 			Phaser.Input.Keyboard.KeyCodes.Q,
 			Phaser.Input.Keyboard.KeyCodes.ESC,
 		];
