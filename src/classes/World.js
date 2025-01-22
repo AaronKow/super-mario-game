@@ -149,11 +149,11 @@ export default class World {
 
 	createClouds(screenWidth, screenHeight) {
 		const cloudPositions = [
-			{ x: screenWidth / 50, y: screenHeight / 3 },
+			{ x: screenWidth / 50, y: screenHeight / 5 },
 			{ x: screenWidth / 1.25, y: screenHeight / 2 },
 			{ x: screenWidth / 1.05, y: screenHeight / 6.5 },
 			{ x: screenWidth / 3, y: screenHeight / 3.5 },
-			{ x: screenWidth / 2.65, y: screenHeight / 2.8 },
+			{ x: screenWidth / 2.1, y: screenHeight / 2.8 },
 		];
 		cloudPositions.forEach(({ x, y }) => {
 			this.add.image(x, y, 'cloud1').setScale(screenHeight / 1725);
@@ -187,10 +187,28 @@ export default class World {
 			}
 		});
 
-		this.add
+		const signBg = this.add
 			.image(screenWidth / 25, screenHeight / 10, 'sign')
 			.setOrigin(0)
 			.setScale(screenHeight / 350);
+
+		// text size
+		const fontSize = screenWidth / 100;
+
+		// Calculate the dimensions of the scaled image
+		const signHeight = signBg.displayHeight;
+
+		// Calculate the position for the text at the bottom right
+		const textX = signBg.x;
+		const textY = signBg.y + signHeight + fontSize; // add additional 8px padding
+
+		// Add the text at the calculated position
+		this.add
+			.text(textX, textY, 'For Educational Recreation Purpose only', {
+				fontFamily: 'pixel_nums',
+				fontSize,
+				align: 'left',
+			});
 	}
 
 	addInteractiveElements(screenCenterX, screenHeight, platformHeight, player) {
