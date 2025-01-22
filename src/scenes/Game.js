@@ -326,7 +326,7 @@ export class Game extends Scene {
 			[2.5, 1.5, -0.5, -1.5, 3.6, 5.6, -2.6, -4.6],
 			[2.8, 4.8, -1.9, -3.9, -0.5, 1.5],
 			[0, 2.5, -1.5],
-			[0, 1, 2, -1],
+			[-1.5, -0.5, 0.5, 1.5],
 			[],
 			[1.5, 0.5, -1.5],
 		];
@@ -340,25 +340,23 @@ export class Game extends Scene {
 		];
 
 		const addBlocks = (offsets, yFactor) => {
-			offsets.forEach((origin) =>
-				this.blocksGroup.add(
-					this.add
-						.tileSprite(pieceStart, this.screenHeight - this.platformHeight * yFactor, 16, 16, 'block')
-						.setScale(scale)
-						.setOrigin(origin, 0.5),
-				),
-			);
+			offsets.forEach((origin) => {
+				const ref = this.add
+					.tileSprite(pieceStart, this.screenHeight - this.platformHeight * yFactor, 16, 16, 'block')
+					.setScale(scale);
+				if (origin !== 0) ref.setOrigin(origin, 0.5);
+				return this.blocksGroup.add(ref);
+			});
 		};
 
 		const addMisteryBlocks = (offsets, yFactor) => {
-			offsets.forEach((origin) =>
-				this.misteryBlocksGroup.add(
-					this.add
-						.sprite(pieceStart, this.screenHeight - this.platformHeight * yFactor, 'mistery-block')
-						.setScale(scale)
-						.setOrigin(origin || 0, 0.5),
-				),
-			);
+			offsets.forEach((origin) => {
+				const ref = this.add
+					.sprite(pieceStart, this.screenHeight - this.platformHeight * yFactor, 'mistery-block')
+					.setScale(scale)
+					.setOrigin(origin, 0.5);
+				return this.misteryBlocksGroup.add(ref);
+			});
 		};
 
 		const addCoins = (origins) => {
@@ -373,7 +371,6 @@ export class Game extends Scene {
 		};
 
 		const random = Phaser.Math.Between(0, 5);
-
 		if (this.isLevelOverworld) {
 			switch (random) {
 				case 0:
@@ -397,7 +394,7 @@ export class Game extends Scene {
 					return Phaser.Math.Between(1, 3);
 				case 4:
 					const subRandom = Phaser.Math.Between(0, 4);
-					const misteryCases = [[0, -3, 4], [0, -3], [0], [1.5, 0, -0.5], [1.75, 0.75, -0.25, -1.25]];
+					const misteryCases = [[0, -3, 4], [0, -3], [0], [1.5, -0.5, -1.5], [1.75, 0.75, -0.25, -1.25]];
 					addMisteryBlocks(misteryCases[subRandom], 1.9);
 					return Phaser.Math.Between(1, 2);
 				case 5:
