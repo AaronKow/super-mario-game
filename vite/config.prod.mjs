@@ -1,5 +1,6 @@
 import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
+import { VitePluginRadar } from 'vite-plugin-radar';
 
 const phasermsg = () => {
 	return {
@@ -17,35 +18,48 @@ const phasermsg = () => {
 	};
 };
 
-export default defineConfig({
-	base: './',
-	logLevel: 'info',
-	resolve: {
-		alias: {
-			'@': path.resolve(__dirname, '../'),
+export default defineConfig(({ mode }) => {
+	const env = loadEnv(mode, process.cwd(), '');
+
+	return {
+		base: './',
+		logLevel: 'info',
+		resolve: {
+			alias: {
+				'@': path.resolve(__dirname, '../'),
+			},
 		},
-	},
-	build: {
-		rollupOptions: {
-			output: {
-				manualChunks: {
-					phaser: ['phaser'],
+		build: {
+			rollupOptions: {
+				output: {
+					manualChunks: {
+						phaser: ['phaser'],
+					},
+				},
+			},
+			minify: 'terser',
+			terserOptions: {
+				compress: {
+					passes: 2,
+				},
+				mangle: true,
+				format: {
+					comments: false,
 				},
 			},
 		},
-		minify: 'terser',
-		terserOptions: {
-			compress: {
-				passes: 2,
-			},
-			mangle: true,
-			format: {
-				comments: false,
-			},
+		server: {
+			port: 8080,
 		},
-	},
-	server: {
-		port: 8080,
-	},
-	plugins: [phasermsg()],
+		plugins: [
+			phasermsg(),
+			VitePluginRadar({
+				gtm: [
+					{
+						id: env.VITE_GTAG_ID,
+					},
+				],
+			}),
+		],
+	};
 });

@@ -18,7 +18,8 @@
 		"html2canvas": "^1.4.1",
 		"phaser3-rex-plugins": "^1.80.12",
 		"terser": "^5.37.0",
-		"vite": "^6.0.7"
+		"vite": "^6.0.7",
+		"vite-plugin-radar": "^0.10.0"
 	},
 	"dependencies": {
 		"phaser": "^3.87.0"
