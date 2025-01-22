@@ -88,7 +88,8 @@ export default class HudControl {
 	updateTimer() {
 		if (!this.timeLeftText || this.timeLeft <= 0 || this.timeLeftText.stopped || this.playerBlocked) return;
 
-		if (this.timeLeft == 100) {
+		if (this.timeLeft <= 100 && !this.timeLeftText?.hurry) {
+			this.timeLeftText.hurry = true;
 			this.registry.get('musicGroup').musicTheme.stop();
 			this.registry.get('musicGroup').undergroundMusicTheme.stop();
 			this.registry.get('soundsEffectGroup').timeWarningSound.play();
@@ -103,7 +104,7 @@ export default class HudControl {
 		}
 
 		setTimeout(() => {
-			this.updateTimer();
+			this.hudInstance.updateTimer.call(this);
 		}, 1000);
 	}
 

@@ -94,7 +94,6 @@ export class Game extends Scene {
 			this.levelStarted &&
 			!this.reachedLevelEnd &&
 			!camera.isFollowing &&
-			// this.player.x >= this.screenWidth * 1.5 &&
 			this.player.x >= camera.worldView.x + camera.width / 2
 		) {
 			camera.startFollow(this.player, true, 0.1, 0.05);
@@ -318,7 +317,7 @@ export class Game extends Scene {
 	initHUD() {
 		this.hudInstance = new HudControl(this);
 		this.hudInstance.createHUD(this);
-		this.hudInstance.updateTimer();
+		this.hudInstance.updateTimer.call(this);
 	}
 
 	generateStructure(pieceStart) {
