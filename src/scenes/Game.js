@@ -155,7 +155,6 @@ export class Game extends Scene {
 		this.mushroomsVelocityX = this.screenWidth / 15;
 
 		if (!this.isLevelOverworld) {
-			//this.blocksGroup.add(this.add.tileSprite(this.worldWidth - screenWidth, screenHeight - (this.platformHeight * 4.5), screenWidth * 2.9, 16, 'block').setScale(screenHeight / 345).setOrigin(1, 0));
 			this.blocksGroup.add(
 				this.add
 					.tileSprite(
@@ -222,14 +221,10 @@ export class Game extends Scene {
 				this.fallProtectionGroup.add(
 					this.add
 						.rectangle(pieceStart + this.platformPiecesWidth * 2, this.screenHeight - this.platformHeight, 5, 5)
-						.setOrigin(0, 1)
-						.setFillStyle(0xff0000),
+						.setOrigin(0, 1),
 				);
 				this.fallProtectionGroup.add(
-					this.add
-						.rectangle(pieceStart, this.screenHeight - this.platformHeight, 5, 5)
-						.setOrigin(1, 1)
-						.setFillStyle(0xff0000),
+					this.add.rectangle(pieceStart, this.screenHeight - this.platformHeight, 5, 5).setOrigin(1, 1),
 				);
 			}
 			pieceStart += this.platformPiecesWidth * 2;
@@ -538,8 +533,7 @@ export class Game extends Scene {
 
 		const random = Phaser.Math.Between(0, 100);
 		if (random < 90) {
-			this.handleFireFlower(block);
-			// this.handleCoin(block);
+			this.handleCoin(block);
 		} else if (random < 96) {
 			this.handleMushroom(block);
 		} else {
