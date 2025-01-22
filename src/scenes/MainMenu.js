@@ -46,6 +46,9 @@ export class MainMenu extends Scene {
 		// draw start screen
 		this.drawStartScreen();
 
+		// apply settings
+		this.applySettings();
+
 		// set camera
 		this.cameras.main.setBounds(0, 0, this.worldWidth, 0);
 	}
