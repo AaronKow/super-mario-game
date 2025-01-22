@@ -41,7 +41,7 @@ const playerController = {
 		positive: true,
 	},
 	speed: {
-		run: velocityX,
+		run: velocityX * 1.5,
 	},
 };
 const playerSpeed = 0.001;

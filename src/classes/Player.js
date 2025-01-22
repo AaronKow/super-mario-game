@@ -153,9 +153,7 @@ export default class Player {
 			this.smoothedControls.moveLeft(delta);
 			if (!this.playerFiring) {
 				if (this.playerState == 0) this.player.anims.play('run', true).flipX = true;
-
 				if (this.playerState == 1) this.player.anims.play('grown-mario-run', true).flipX = true;
-
 				if (this.playerState == 2) this.player.anims.play('fire-mario-run', true).flipX = true;
 			}
 
@@ -172,9 +170,7 @@ export default class Player {
 			this.smoothedControls.moveRight(delta);
 			if (!this.playerFiring) {
 				if (this.playerState == 0) this.player.anims.play('run', true).flipX = false;
-
 				if (this.playerState == 1) this.player.anims.play('grown-mario-run', true).flipX = false;
-
 				if (this.playerState == 2) this.player.anims.play('fire-mario-run', true).flipX = false;
 			}
 
@@ -189,12 +185,14 @@ export default class Player {
 			this.player.setVelocityX(newVelocityX);
 		} else {
 			if (this.player.body.velocity.x != 0) this.smoothedControls.reset();
-			if (this.player.body.touching.down) this.player.setVelocityX(0);
+			if (this.player.body.touching.down) {
+				// Apply damping to the velocity to create a momentum effect
+				const dampingFactor = 0.5; // Adjust this value to control the damping effect
+				this.player.setVelocityX(this.player.body.velocity.x * dampingFactor);
+			}
 			if (!(this.controlKeys.JUMP.isDown || this.joyStick.up) && !this.playerFiring) {
 				if (this.playerState == 0) this.player.anims.play('idle', true);
-
 				if (this.playerState == 1) this.player.anims.play('grown-mario-idle', true);
-
 				if (this.playerState == 2) this.player.anims.play('fire-mario-idle', true);
 			}
 		}
