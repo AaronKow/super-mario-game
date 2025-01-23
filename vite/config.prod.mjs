@@ -54,11 +54,9 @@ export default defineConfig(({ mode }) => {
 		plugins: [
 			phasermsg(),
 			VitePluginRadar({
-				gtm: [
-					{
-						id: env.VITE_GTAG_ID,
-					},
-				],
+				analytics: {
+					id: env.VITE_GA_ID,
+				},
 			}),
 		],
 	};
