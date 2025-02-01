@@ -111,6 +111,7 @@ export const gameStates = {
 		RIGHT: null,
 		FIRE: null,
 		PAUSE: null,
+		ATK: null,
 	},
 	score: 0,
 	timeLeft: 300,

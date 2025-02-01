@@ -80,7 +80,7 @@ export default class Player {
 		});
 
 		// Set control keys
-		const keyNames = ['JUMP', 'DOWN', 'LEFT', 'RIGHT', 'FIRE', 'PAUSE'];
+		const keyNames = ['JUMP', 'DOWN', 'LEFT', 'RIGHT', 'FIRE', 'PAUSE', 'ATK'];
 		const defaultCodes = [
 			Phaser.Input.Keyboard.KeyCodes.SPACE,
 			Phaser.Input.Keyboard.KeyCodes.DOWN,
@@ -88,6 +88,7 @@ export default class Player {
 			Phaser.Input.Keyboard.KeyCodes.RIGHT,
 			Phaser.Input.Keyboard.KeyCodes.Q,
 			Phaser.Input.Keyboard.KeyCodes.ESC,
+			Phaser.Input.Keyboard.KeyCodes.A,
 		];
 
 		keyNames.forEach((keyName, i) => {
@@ -142,6 +143,15 @@ export default class Player {
 			this.playerState > 0 && (this.controlKeys.DOWN.isDown || this.joyStick.down)
 				? this.player.setVelocityY(-this.velocityY / 1.25)
 				: this.player.setVelocityY(-this.velocityY);
+		}
+
+		// Apply attack
+		if (this.controlKeys.ATK.isDown) {
+			// this.player.anims.play('mario-atk');
+			if (this.playerState == 0) {
+				this.player.anims.play('mario-atk', true);
+				return;
+			}
 		}
 
 		// > Horizontal movement and animations

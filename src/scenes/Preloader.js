@@ -155,7 +155,7 @@ export class Preloader extends Scene {
 
 	loadSpriteSheets(levelStyle) {
 		const spriteSheets = [
-			['mario', '/entities/mario.png', 18, 16],
+			['mario', '/entities/mario.png', 26, 20],
 			['mario-grown', '/entities/mario-grown.png', 18, 32],
 			['mario-fire', '/entities/mario-fire.png', 18, 32],
 			['goomba', `/entities/${levelStyle}/goomba.png`, 16, 16],
@@ -261,6 +261,9 @@ export class Preloader extends Scene {
 			{ key: 'run', frames: this.anims.generateFrameNumbers('mario', { start: 3, end: 1 }), frameRate: 12, repeat: -1 },
 			{ key: 'hurt', frames: [{ key: 'mario', frame: 4 }] },
 			{ key: 'jump', frames: [{ key: 'mario', frame: 5 }] },
+
+			// Maria attack animations
+			{ key: 'mario-atk', frames: this.anims.generateFrameNumbers('mario', { start: 6, end: 12 }), frameRate: 12, repeat: -1 },
 
 			// Grown Mario animations
 			{ key: 'grown-mario-idle', frames: [{ key: 'mario-grown', frame: 0 }] },
