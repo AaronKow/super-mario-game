@@ -52,6 +52,12 @@ export default class Player {
 
 		// update player offset if game level started
 		if (this.levelStarted) this.startOffset = this.screenWidth + 100;
+
+		// Define variables to track consecutive attacks
+		this.consecutiveAttacks = 0;
+		this.attackTimer = null;
+		this.attackCooldown = 3000; // 3 seconds cooldown
+		this.attackKeyReleased = true; // Flag to track key release
 	}
 
 	createPlayer() {
@@ -147,11 +153,39 @@ export default class Player {
 
 		// Apply attack
 		if (this.controlKeys.ATK.isDown) {
-			// this.player.anims.play('mario-atk');
-			if (this.playerState == 0) {
-				this.player.anims.play('mario-atk', true);
+			if (this.attackKeyReleased && this.playerState == 0) {
+				this.player.isAttacking = true;
+
+				// Increment the consecutive attack counter
+				this.playerInstance.consecutiveAttacks++;
+
+				// Play the corresponding attack animation frame
+				const attackFrame = `mario-atk-${this.playerInstance.consecutiveAttacks}`;
+				this.registry.get('soundsEffectGroup').swing1.play();
+				this.player.anims.play(attackFrame, true);
+
+				// Set the flag to false to wait for key release
+				// this.attackKeyReleased = true;
+
+				// Set a timer to persist the animation for at least 1 second
+				this.attackKeyReleased = false;
+				setTimeout(() => {
+					// Reset the attack sequence if it reaches the maximum
+					if (this.playerInstance.consecutiveAttacks === 1) this.playerInstance.consecutiveAttacks = 0;
+				}, 250);
+
+				setTimeout(() => {
+					// Reset the attack sequence if it reaches the maximum
+					if (this.playerInstance.consecutiveAttacks >= 2) this.playerInstance.consecutiveAttacks = 0;
+					this.player.isAttacking = false;
+				}, 500);
+
+				// End
 				return;
 			}
+		} else {
+			// Set the flag to true when the key is released
+			this.attackKeyReleased = true;
 		}
 
 		// > Horizontal movement and animations
@@ -162,7 +196,15 @@ export default class Player {
 		if (this.controlKeys.LEFT.isDown || this.joyStick.left) {
 			this.smoothedControls.moveLeft(delta);
 			if (!this.playerFiring) {
-				if (this.playerState == 0) this.player.anims.play('run', true).flipX = true;
+				if (this.playerState == 0) {
+					if (this.playerInstance.consecutiveAttacks === 1) {
+						this.player.anims.play('mario-atk-1', true);
+					} else if (this.playerInstance.consecutiveAttacks === 2) {
+						this.player.anims.play('mario-atk-2', true);
+					} else {
+						this.player.anims.play('run', true).flipX = true;
+					}
+				}
 				if (this.playerState == 1) this.player.anims.play('grown-mario-run', true).flipX = true;
 				if (this.playerState == 2) this.player.anims.play('fire-mario-run', true).flipX = true;
 			}
@@ -179,7 +221,15 @@ export default class Player {
 		} else if (this.controlKeys.RIGHT.isDown || this.joyStick.right) {
 			this.smoothedControls.moveRight(delta);
 			if (!this.playerFiring) {
-				if (this.playerState == 0) this.player.anims.play('run', true).flipX = false;
+				if (this.playerState == 0) {
+					if (this.playerInstance.consecutiveAttacks === 1) {
+						this.player.anims.play('mario-atk-1', true);
+					} else if (this.playerInstance.consecutiveAttacks === 2) {
+						this.player.anims.play('mario-atk-2', true);
+					} else {
+						this.player.anims.play('run', true).flipX = false;
+					}
+				}
 				if (this.playerState == 1) this.player.anims.play('grown-mario-run', true).flipX = false;
 				if (this.playerState == 2) this.player.anims.play('fire-mario-run', true).flipX = false;
 			}
@@ -201,7 +251,15 @@ export default class Player {
 				this.player.setVelocityX(this.player.body.velocity.x * dampingFactor);
 			}
 			if (!(this.controlKeys.JUMP.isDown || this.joyStick.up) && !this.playerFiring) {
-				if (this.playerState == 0) this.player.anims.play('idle', true);
+				if (this.playerState == 0) {
+					if (this.playerInstance.consecutiveAttacks === 1) {
+						this.player.anims.play('mario-atk-1', true);
+					} else if (this.playerInstance.consecutiveAttacks === 2) {
+						this.player.anims.play('mario-atk-2', true);
+					} else {
+						this.player.anims.play('idle', true);
+					}
+				}
 				if (this.playerState == 1) this.player.anims.play('grown-mario-idle', true);
 				if (this.playerState == 2) this.player.anims.play('fire-mario-idle', true);
 			}
@@ -223,7 +281,7 @@ export default class Player {
 			} else {
 				if (this.playerState > 0) this.player.body.setSize(14, 32).setOffset(2, 0);
 
-				if (this.playerState == 0) this.player.body.setSize(14, 16).setOffset(1.3, 0.5);
+				if (this.playerState == 0) this.player.body.setSize(20, 20).setOffset(1.3, 0.5);
 			}
 		}
 
@@ -235,7 +293,15 @@ export default class Player {
 		// Apply jump animation
 		if (!this.player.body.touching.down) {
 			if (!this.playerFiring) {
-				if (this.playerState == 0) this.player.anims.play('jump', true);
+				if (this.playerState == 0) {
+					if (this.playerInstance.consecutiveAttacks === 1) {
+						this.player.anims.play('mario-atk-1', true);
+					} else if (this.playerInstance.consecutiveAttacks === 2) {
+						this.player.anims.play('mario-atk-2', true);
+					} else {
+						this.player.anims.play('jump', true);
+					}
+				}
 
 				if (this.playerState == 1) this.player.anims.play('grown-mario-jump', true);
 

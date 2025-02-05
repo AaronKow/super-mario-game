@@ -72,6 +72,8 @@ export class Preloader extends Scene {
 			pauseSound: this.sound.add('pauseSound', { volume: 0.17 }),
 			blockBumpSound: this.sound.add('block-bump', { volume: 0.3 }),
 			breakBlockSound: this.sound.add('break-block', { volume: 0.5 }),
+			swing1: this.sound.add('swing1', { volume: 0.5 }),
+			swing2: this.sound.add('swing2', { volume: 0.5 }),
 		});
 
 		// init BG music
@@ -249,6 +251,10 @@ export class Preloader extends Scene {
 			['pauseSound', '/sound/effects/pause.wav'],
 			['block-bump', '/sound/effects/block-bump.wav'],
 			['break-block', '/sound/effects/break-block.wav'],
+
+			// lightsaber
+			['swing1', '/sound/effects/swing1.mp3'],
+			['swing2', '/sound/effects/swing2.mp3'],
 		];
 
 		audioFiles.forEach(([key, path]) => this.load.audio(key, path));
@@ -263,7 +269,18 @@ export class Preloader extends Scene {
 			{ key: 'jump', frames: [{ key: 'mario', frame: 5 }] },
 
 			// Maria attack animations
-			{ key: 'mario-atk', frames: this.anims.generateFrameNumbers('mario', { start: 6, end: 12 }), frameRate: 12, repeat: -1 },
+			{
+				key: 'mario-atk-1',
+				frames: this.anims.generateFrameNumbers('mario', { start: 6, end: 9 }),
+				frameRate: 20,
+				repeat: 0,
+			},
+			{
+				key: 'mario-atk-2',
+				frames: this.anims.generateFrameNumbers('mario', { start: 10, end: 12 }),
+				frameRate: 10,
+				repeat: 0,
+			},
 
 			// Grown Mario animations
 			{ key: 'grown-mario-idle', frames: [{ key: 'mario-grown', frame: 0 }] },

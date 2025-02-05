@@ -28,6 +28,12 @@ export const config = {
 		width: '100%',
 		height: '100%',
 	},
+	audio: {
+		disableWebAudio: false,
+		noAudio: false,
+		context: new (window.AudioContext || window.webkitAudioContext)(),
+		latencyHint: 'interactive', // Options: 'balanced', 'interactive', 'playback'
+	},
 };
 
 // for control technique

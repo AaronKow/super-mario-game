@@ -60,12 +60,12 @@ export default class Goombas {
 			}
 		}
 
-		if (goombaBeingStomped) {
+		if (player.isAttacking || goombaBeingStomped) {
 			goomba.anims.play('goomba-hurt', true);
 			goomba.body.enable = false;
 			this.goombasGroup.remove(goomba);
 			this.registry.get('soundsEffectGroup').goombaStompSound.play();
-			player.setVelocityY(-this.velocityY / 1.5);
+			if (goombaBeingStomped) player.setVelocityY(-this.velocityY / 1.5);
 			if (this.hudInstance) this.hudInstance.addToScore(100, goomba);
 			setTimeout(() => {
 				this.tweens.add({
